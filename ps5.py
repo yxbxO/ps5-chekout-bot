@@ -1,6 +1,9 @@
 from selenium import webdriver
-from requests_html import HTMLSession, AsyncHTMLSession
+from requests_html import HTMLSession
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 from config import user_info
 
@@ -19,9 +22,32 @@ driver = webdriver.Chrome()
 def signin(k):
     login_url = 'https://www.walmart.com/account/login?ref=domain'
     driver.get(login_url)
-    driver.find_element_by_xpath('//*[@id="email"]').send_keys(k['username'])
-    driver.find_element_by_xpath('//*[@id="password"]').send_keys(k['password'])
-    driver.find_element_by_xpath('//*[@id="sign-in-form"]/button[1]').click()
+    try:
+        usr = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="email"]'))
+        )
+        usr.send_keys(k['username'])
+        print('username entry success')
+    except:
+        driver.quit()
+    
+    try:
+        psswrd = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="password"]'))
+        )
+        psswrd.send_keys(k['password'])
+        print('password entry success')
+    except:
+        driver.quit()
+
+    try:
+        login = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="sign-in-form"]/button[1]'))
+        )
+        login.click()
+        print('sign in success')
+    except:
+        driver.quit()
 
 #checks if ps5 is out of stock and refreshs until it is not
 def check_if_in_stock():
@@ -42,19 +68,66 @@ def check_if_in_stock():
 
 #this function needs a lot of work expecially lots of error handling. it looks for elements on the web and clicks on them
 def checkout(k):
-    driver.find_element_by_xpath('//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]').click()
-    time.sleep(1)
-    driver.find_element_by_xpath('//*[@id="cart-root-container-content-skip"]/div[1]/div/div[2]/div/div/div/div/div[3]/div/div/div[2]/div/div[2]/div/button[1]/span').click()
-    time.sleep(1)
-    driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[1]/div/div[2]/div/div/div/div[3]/div/div/div[2]/button/span').click()
-    time.sleep(1)
-    driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[2]/div[1]/div[2]/div/div/div/div[3]/div/div/div/div/div[3]/div[2]/button/span').click()
-    time.sleep(2)
-    driver.find_element_by_xpath('//*[@id="cvv-confirm"]').send_keys(k['cvs'])
-    time.sleep(1)
-    driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[3]/div[1]/div[2]/div/div/div/div[3]/div[2]/div/button/span/span').click()
+    try:
+        #200 secs for time if captcha pops up
+        addcart = WebDriverWait(driver, 200).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]'))
+        )
+        addcart.click()
+        print('add to cart success')
+    except:
+        print('unsuccessful')
+        driver.quit()
 
+    try:
+        cart = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="cart-root-container-content-skip"]/div[1]/div/div[2]/div/div/div/div/div[3]/div/div/div[2]/div/div[2]/div/button[1]/span'))
+        )
+        cart.click()
+        print('cart page success')
+    except:
+        driver.quit()
+    
+    try:
+        d_date = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[1]/div/div[2]/div/div/div/div[3]/div/div/div[2]/button/span'))
+        )
+        d_date.click()
+        print('delivery date success')
+    except:
+        driver.quit()
+
+    try:
+        addr = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[2]/div[1]/div[2]/div/div/div/div[3]/div/div/div/div/div[3]/div[2]/button/span'))
+        )
+        time.sleep(1)
+        addr.click()
+        print('address confirm success')
+    except:
+        driver.quit()
+
+    try:
+        cvs = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="cvv-confirm"]'))
+        )
+        cvs.send_keys(k['cvs'])
+        print('cvs entry success')
+    except:
+        driver.quit()
+
+    try:
+        review_ord = WebDriverWait(driver, 8).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[3]/div[1]/div[2]/div/div/div/div[3]/div[2]/div/button/span/span'))
+        )
+        time.sleep(1)
+        review_ord.click()
+        print('order review success')
+    except:
+        driver.quit()
 
 signin(user_info)
 check_if_in_stock()
 checkout(user_info)
+time.sleep(5)
+driver.close()
