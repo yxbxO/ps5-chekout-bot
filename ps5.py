@@ -1,5 +1,5 @@
 from selenium import webdriver
-from requests_html import HTMLSession
+from requests_html import HTMLSession, AsyncHTMLSession
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -18,7 +18,7 @@ only goes as far as to reviewing the order
 
 driver = webdriver.Chrome()
 
-#goes to signin page and logsin
+#goes to signin page and enters login info
 def signin(k):
     login_url = 'https://www.walmart.com/account/login?ref=domain'
     driver.get(login_url)
@@ -53,17 +53,17 @@ def signin(k):
 def check_if_in_stock():
     time.sleep(1)
     #used this link instead of the ps5 for testing purposes
-    driver.get('https://www.walmart.com/ip/TSV-PS4-Controller-Dual-Shock-Skin-Grip-Anti-slip-Silicone-Cover-Protector-Case-for-Sony-PS4-PS4-Slim-PS4-Pro-Controller-8-Thumb-Grips/304160322')
-    #driver.get('https://www.walmart.com/ip/PlayStation-5-Console/363472942')   
-    base_url = ('https://www.walmart.com/ip/TSV-PS4-Controller-Dual-Shock-Skin-Grip-Anti-slip-Silicone-Cover-Protector-Case-for-Sony-PS4-PS4-Slim-PS4-Pro-Controller-8-Thumb-Grips/304160322')
-    #base_url = ('https://www.walmart.com/ip/PlayStation-5-Console/363472942')
+    base_url = ('https://www.walmart.com/ip/PlayStation-5-Console/363472942')
+    #base_url = ('https://www.walmart.com/ip/TSV-PS4-Controller-Dual-Shock-Skin-Grip-Anti-slip-Silicone-Cover-Protector-Case-for-Sony-PS4-PS4-Slim-PS4-Pro-Controller-8-Thumb-Grips/304160322')
+    driver.get(base_url)   
     session = HTMLSession()
     r = session.get(base_url)
     yo = r.html.find('link[href="//schema.org/OutOfStock"]', first=True)
     while yo != None:
         driver.refresh()
-        time.sleep(1)
-        print('Out Of Stock')
+        time.sleep(2)
+        yo = r.html.find('link[href="//schema.org/OutOfStock"]', first=True)
+        print(yo, ' = Out Of Stock')
     print('In Stock!')
 
 #this function needs a lot of work expecially lots of error handling. it looks for elements on the web and clicks on them
@@ -74,7 +74,7 @@ def checkout(k):
             EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]'))
         )
         addcart.click()
-        print('add to cart success')
+        print('added to cart')
     except:
         print('unsuccessful')
         driver.quit()
@@ -88,17 +88,19 @@ def checkout(k):
     except:
         driver.quit()
     
+    #200sec wait time in case of captcha
     try:
-        d_date = WebDriverWait(driver, 8).until(
+        d_date = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[1]/div/div[2]/div/div/div/div[3]/div/div/div[2]/button/span'))
         )
         d_date.click()
-        print('delivery date success')
+        print('delivery date confirmed')
     except:
         driver.quit()
 
+    #200sec wait time in case of captcha
     try:
-        addr = WebDriverWait(driver, 8).until(
+        addr = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[2]/div[1]/div[2]/div/div/div/div[3]/div/div/div/div/div[3]/div[2]/button/span'))
         )
         time.sleep(1)
@@ -107,8 +109,9 @@ def checkout(k):
     except:
         driver.quit()
 
+    #200sec wait time in case of captcha
     try:
-        cvs = WebDriverWait(driver, 8).until(
+        cvs = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="cvv-confirm"]'))
         )
         cvs.send_keys(k['cvs'])
@@ -116,8 +119,9 @@ def checkout(k):
     except:
         driver.quit()
 
+    #200sec wait time in case of captcha
     try:
-        review_ord = WebDriverWait(driver, 8).until(
+        review_ord = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[3]/div[1]/div[2]/div/div/div/div[3]/div[2]/div/button/span/span'))
         )
         time.sleep(1)
@@ -126,8 +130,9 @@ def checkout(k):
     except:
         driver.quit()
 
-signin(user_info)
-check_if_in_stock()
-checkout(user_info)
-time.sleep(5)
-driver.close()
+if __name__ == "__main__":
+    signin(user_info)
+    check_if_in_stock()
+    checkout(user_info)
+    time.sleep(5)
+    driver.close()
