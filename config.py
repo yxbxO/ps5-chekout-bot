@@ -1,5 +1,5 @@
 user_info = {
-    'username': 'ayub.odowa@gmail.com',
-    'password': 'Uglyboy1',
-    'cvs': '450'
+    'username': '', #your username goes here
+    'password': '', #your password goes here
+    'cvs': ''       #your saved card's cvs number goes here
 }

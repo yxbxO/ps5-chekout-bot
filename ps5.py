@@ -43,15 +43,15 @@ def check_if_in_stock():
 #this function needs a lot of work expecially lots of error handling. it looks for elements on the web and clicks on them
 def checkout(k):
     driver.find_element_by_xpath('//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]').click()
-    time.sleep(2)
+    time.sleep(1)
     driver.find_element_by_xpath('//*[@id="cart-root-container-content-skip"]/div[1]/div/div[2]/div/div/div/div/div[3]/div/div/div[2]/div/div[2]/div/button[1]/span').click()
-    time.sleep(2)
+    time.sleep(1)
     driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[1]/div/div[2]/div/div/div/div[3]/div/div/div[2]/button/span').click()
-    time.sleep(2)
+    time.sleep(1)
     driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[2]/div[1]/div[2]/div/div/div/div[3]/div/div/div/div/div[3]/div[2]/button/span').click()
     time.sleep(2)
     driver.find_element_by_xpath('//*[@id="cvv-confirm"]').send_keys(k['cvs'])
-    time.sleep(2)
+    time.sleep(1)
     driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[3]/div[1]/div[2]/div/div/div/div[3]/div[2]/div/button/span/span').click()
 
 
