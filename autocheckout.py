@@ -53,7 +53,6 @@ def signin(k):
 def check_if_in_stock(k):
     time.sleep(1)
     #used this link instead of the ps5 for testing purposes
-    #base_url = ('https://www.walmart.com/ip/PlayStation-5-Console/363472942')
     base_url = (k['URL'])
     driver.get(base_url)   
     session = HTMLSession()
