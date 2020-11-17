@@ -50,11 +50,11 @@ def signin(k):
         driver.quit()
 
 #checks if ps5 is out of stock and refreshs until it is not
-def check_if_in_stock():
+def check_if_in_stock(k):
     time.sleep(1)
     #used this link instead of the ps5 for testing purposes
-    base_url = ('https://www.walmart.com/ip/PlayStation-5-Console/363472942')
-    #base_url = ('https://www.walmart.com/ip/TSV-PS4-Controller-Dual-Shock-Skin-Grip-Anti-slip-Silicone-Cover-Protector-Case-for-Sony-PS4-PS4-Slim-PS4-Pro-Controller-8-Thumb-Grips/304160322')
+    #base_url = ('https://www.walmart.com/ip/PlayStation-5-Console/363472942')
+    base_url = (k['URL'])
     driver.get(base_url)   
     session = HTMLSession()
     r = session.get(base_url)
@@ -70,9 +70,13 @@ def check_if_in_stock():
 def checkout(k):
     try:
         #200 secs for time if captcha pops up
+        amnt = WebDriverWait(driver, 200).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[2]/select'))
+        )
         addcart = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]'))
         )
+        amnt.send_keys(k['amount'])
         addcart.click()
         print('added to cart')
     except:
@@ -80,11 +84,11 @@ def checkout(k):
         driver.quit()
 
     try:
-        cart = WebDriverWait(driver, 8).until(
+        cart = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="cart-root-container-content-skip"]/div[1]/div/div[2]/div/div/div/div/div[3]/div/div/div[2]/div/div[2]/div/button[1]/span'))
         )
         cart.click()
-        print('cart page success')
+        print('went to cart page successfully')
     except:
         driver.quit()
     
@@ -132,7 +136,7 @@ def checkout(k):
 
 if __name__ == "__main__":
     signin(user_info)
-    check_if_in_stock()
+    check_if_in_stock(user_info)
     checkout(user_info)
     time.sleep(5)
     driver.close()
