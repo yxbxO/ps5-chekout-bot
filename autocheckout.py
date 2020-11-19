@@ -35,6 +35,7 @@ def signin(k):
 
 #checks if ps5 is out of stock and refreshs until it is not
 def check_if_in_stock(k):
+    time.sleep(1)
     base_url = (k['URL'])
     driver.get(base_url) 
     while(1):
@@ -118,6 +119,7 @@ def checkout(k):
     except:
         driver.quit()
 
+    '''
     try:
         place_ord = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div/form/div/button/span'))
@@ -126,6 +128,7 @@ def checkout(k):
         print('order placed successfully')
     except:
         driver.quit()
+    '''
 
 if __name__ == "__main__":
     signin(user_info)
