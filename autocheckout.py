@@ -32,6 +32,14 @@ def signin(k):
     except:
         driver.quit()
 
+def error_checking(k, cur_url, *arg):
+    while cur_url != k['URL'] or arg:
+        print('complete the captcha please')
+        time.sleep(2)
+        cur_url = driver.current_url
+        if cur_url == k['URL'] or arg:
+            break
+
 
 #checks if ps5 is out of stock and refreshs until it is not
 def check_if_in_stock(k):
@@ -56,13 +64,8 @@ def check_if_in_stock(k):
             print('OUT OF STOCK')
             cur_url = driver.current_url
             print(cur_url)
-            while cur_url != k['URL']:
-                print('complete the captcha please')
-                time.sleep(2)
-                cur_url = driver.current_url
-                if cur_url == k['URL']:
-                    break
-            print('refreshing...')
+            error_checking(user_info, cur_url)
+            print('refreshing...\n')
             driver.refresh()
 
 
@@ -76,7 +79,7 @@ def checkout(k):
         print('went to cart page successfully')
     except:
         driver.quit()
-    
+
     #200sec wait time in case of captcha
     try:
         d_date = WebDriverWait(driver, 200).until(
@@ -119,7 +122,6 @@ def checkout(k):
     except:
         driver.quit()
 
-    '''
     try:
         place_ord = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div/form/div/button/span'))
@@ -128,7 +130,7 @@ def checkout(k):
         print('order placed successfully')
     except:
         driver.quit()
-    '''
+
 
 if __name__ == "__main__":
     signin(user_info)
