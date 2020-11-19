@@ -7,15 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from config import user_info
 
-'''
-
-it's in very early stages. so far there arent any error checking in the code. if internet gets interrupted
-or website takes a little longer to load the bot will mess up. oh and not to mention the ever loved captchas
-
-only goes as far as to reviewing the order
-
-'''
-
 driver = webdriver.Chrome()
 
 #goes to signin page and enters login info
@@ -57,11 +48,13 @@ def check_if_in_stock(k):
     driver.get(base_url)   
     session = HTMLSession()
     r = session.get(base_url)
-    yo = r.html.find('link[href="//schema.org/OutOfStock"]', first=True)
+    yo = r.html.find('.prod-blitz-copy-message', first=True)
     while yo != None:
         driver.refresh()
-        time.sleep(2)
-        yo = r.html.find('link[href="//schema.org/OutOfStock"]', first=True)
+        time.sleep(2)  
+        session = HTMLSession()
+        r = session.get(base_url)
+        yo = r.html.find('.prod-blitz-copy-message', first=True)
         print(yo, ' = Out Of Stock')
     print('In Stock!')
 
@@ -69,7 +62,7 @@ def check_if_in_stock(k):
 def checkout(k):
     try:
         #200 secs for time if captcha pops up
-        amnt = WebDriverWait(driver, 200).until(
+        amnt = WebDriverWait(driver, 4).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[2]/select'))
         )
         addcart = WebDriverWait(driver, 200).until(
@@ -80,7 +73,7 @@ def checkout(k):
         print('added to cart')
     except:
         print('unsuccessful')
-        driver.quit()
+        driver.refresh()
 
     try:
         cart = WebDriverWait(driver, 200).until(
@@ -127,9 +120,18 @@ def checkout(k):
         review_ord = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div/div[3]/div[1]/div[2]/div/div/div/div[3]/div[2]/div/button/span/span'))
         )
-        time.sleep(1)
+        #time.sleep(1)
         review_ord.click()
         print('order review success')
+    except:
+        driver.quit()
+
+    try:
+        place_ord = WebDriverWait(driver, 200).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[2]/div/div/div[2]/div/form/div/button/span'))
+        )
+        place_ord.click()
+        print('order placed successfully')
     except:
         driver.quit()
 
