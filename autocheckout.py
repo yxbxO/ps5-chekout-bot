@@ -1,6 +1,4 @@
 from selenium import webdriver
-from requests_html import HTMLSession
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,19 +17,13 @@ def signin(k):
         )
         usr.send_keys(k['username'])
         print('username entry success')
-    except:
-        driver.quit()
-    
-    try:
+
         psswrd = WebDriverWait(driver, 8).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="password"]'))
         )
         psswrd.send_keys(k['password'])
         print('password entry success')
-    except:
-        driver.quit()
 
-    try:
         login = WebDriverWait(driver, 8).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="sign-in-form"]/button[1]'))
         )
@@ -40,41 +32,41 @@ def signin(k):
     except:
         driver.quit()
 
+
 #checks if ps5 is out of stock and refreshs until it is not
 def check_if_in_stock(k):
-    time.sleep(1)
-    #used this link instead of the ps5 for testing purposes
     base_url = (k['URL'])
-    driver.get(base_url)   
-    session = HTMLSession()
-    r = session.get(base_url)
-    yo = r.html.find('.prod-blitz-copy-message', first=True)
-    while yo != None:
-        driver.refresh()
-        time.sleep(2)  
-        session = HTMLSession()
-        r = session.get(base_url)
-        yo = r.html.find('.prod-blitz-copy-message', first=True)
-        print(yo, ' = Out Of Stock')
-    print('In Stock!')
+    driver.get(base_url) 
+    while(1):
+        try:
+        #200 secs for time if captcha pops up
+            amnt = WebDriverWait(driver, 4).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[2]/select'))
+            )
+            addcart = WebDriverWait(driver, 4).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]'))
+            )
+            print
+            amnt.send_keys(k['amount'])
+            addcart.click()
+            print('added to cart')
+            break
+        except:
+            print('OUT OF STOCK')
+            cur_url = driver.current_url
+            print(cur_url)
+            while cur_url != k['URL']:
+                print('complete the captcha please')
+                time.sleep(2)
+                cur_url = driver.current_url
+                if cur_url == k['URL']:
+                    break
+            print('refreshing...')
+            driver.refresh()
+
 
 #this function needs a lot of work expecially lots of error handling. it looks for elements on the web and clicks on them
 def checkout(k):
-    try:
-        #200 secs for time if captcha pops up
-        amnt = WebDriverWait(driver, 4).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[2]/select'))
-        )
-        addcart = WebDriverWait(driver, 200).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-on-atc-container"]/div[1]/section/div[1]/div[3]'))
-        )
-        amnt.send_keys(k['amount'])
-        addcart.click()
-        print('added to cart')
-    except:
-        print('unsuccessful')
-        driver.refresh()
-
     try:
         cart = WebDriverWait(driver, 200).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="cart-root-container-content-skip"]/div[1]/div/div[2]/div/div/div/div/div[3]/div/div/div[2]/div/div[2]/div/button[1]/span'))
