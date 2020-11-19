@@ -1,5 +1,5 @@
 from selenium import webdriver
-from requests_html import HTMLSession, AsyncHTMLSession
+from requests_html import HTMLSession
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
